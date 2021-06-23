@@ -3,6 +3,7 @@ import csv
 from datetime import date
 from datetime import datetime
 import os
+import sys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 
@@ -53,7 +54,7 @@ def getItemsWB(url):
             itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('lower-price').text))
             # print(itemId,' ',itemName,' ',itemPrice)
         except:
-            print ('error')
+            print ('error ', sys.exc_info()[0])
         else:
             if len(itemPrice) > 1:
                 items.append(SiteItem(itemId, itemName, itemPrice))
