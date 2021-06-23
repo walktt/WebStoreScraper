@@ -33,11 +33,15 @@ def getItemsDNS(url):
     search = driver.find_elements_by_xpath("//div[@data-id='product']")
     items = []
     for item in search:
-        itemId = item.get_attribute('data-code')
-        itemName = item.find_element_by_class_name('catalog-product__name').text
-        itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('product-buy__price').text))
-        if len(itemPrice) > 1:
-            items.append(SiteItem(itemId, itemName, itemPrice))
+        try:
+            itemId = item.get_attribute('data-code')
+            itemName = item.find_element_by_class_name('catalog-product__name').text
+            itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('product-buy__price').text))
+        except:
+            print ('error ', sys.exc_info()[0])
+        else:
+            if len(itemPrice) > 1:
+                items.append(SiteItem(itemId, itemName, itemPrice))
     driver.quit()
     return items
 
@@ -175,7 +179,7 @@ def scrapYM(link, filename):
         if items:
             all_items.extend(items)
             page += 1
-            if page > 21:
+            if page > 11:
                 break
         else:
             break
