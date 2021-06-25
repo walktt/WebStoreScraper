@@ -19,10 +19,10 @@ class SiteItem:
         self.price = price
 
     def __str__(self):
-        return str((self.id , ', ' , self.name , ', ' , self.price , ';'))
+        return (f'{self.id} , {self.name} , {str(self.price)};')
 
     def __repr__(self):
-        return str((self.id , ', ' , self.name , ', ' , self.price , ';'))
+        return (f'{self.id} , {self.name} , {str(self.price)};')
 
 
 def getItemsDNS(url):
@@ -75,12 +75,10 @@ def getItemsYM(url):
     items = []
     for item in search:
         try:
-            # itemId = item.find_element_by_tag_name("div").get_attribute('id')[1:]
-            # itemName = item.find_element_by_class_name('goods-name').text + ' ' + item.find_element_by_class_name('brand-name').text
-            # itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('lower-price').text))
             itemId = json.loads(item.get_attribute('data-zone-data'))["id"]
             itemName = item.find_element_by_tag_name('h3').text
-            itemPrice = json.loads(item.get_attribute('data-zone-data'))["price"]
+            # itemPrice = json.loads(item.get_attribute('data-zone-data'))["price"] #doesnt work if price starts from
+            itemPrice=''.join(filter(str.isdigit,item.find_elements_by_xpath("//div[@data-zone-name='price']").text))
             print(itemId,' ',itemName,' ',itemPrice)
         except:
             print ('error ', sys.exc_info()[0])
@@ -187,9 +185,9 @@ def scrapYM(link, filename):
     print(datetime.now().strftime("%H:%M:%S"), ' Total records: ' + str(len(all_items)))
     write_csv(all_items, filename)
 
-# if __name__ == '__main__':
-#     scrapYM(
-#         'https://market.yandex.ru/catalog--noutbuki-v-anape/54544/list?cpa=0&hid=91013&how=aprice&glfilter=5085102%3A16880592&onstock=1&local-offers-first=0&page=',
-#         'ym-laptops.csv')
-    # scrapDNS('https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?p=', 'dns-mb-test1.csv')
-    # scrapWB('https://www.wildberries.ru/catalog/elektronika/noutbuki-i-kompyutery/komplektuyushchie-dlya-pk?sort=popular&page=1','test.csv')
+if __name__ == '__main__':
+    scrapYM(
+        'https://market.yandex.ru/catalog--noutbuki-v-anape/54544/list?cpa=0&hid=91013&how=aprice&glfilter=5085102%3A16880592&onstock=1&local-offers-first=0&page=',
+        'ym-laptops.csv')
+    scrapDNS('https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?p=', 'dns-mb-test1.csv')
+    scrapWB('https://www.wildberries.ru/catalog/elektronika/noutbuki-i-kompyutery/komplektuyushchie-dlya-pk?sort=popular&page=1','test.csv')
