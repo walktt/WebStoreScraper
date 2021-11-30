@@ -1,16 +1,18 @@
 # https://stackoverflow.com/questions/16180428/can-selenium-webdriver-open-browser-windows-silently-in-the-background
 
 from selenium import webdriver
-import csv
+from selenium.webdriver.chrome.options import Options
 from datetime import date
 from datetime import datetime
-import os
-import sys
-import json
+import os, sys, time,re
+import json, csv
 import telebot
 from inspect import currentframe
+from fake_useragent import UserAgent
+import undetected_chromedriver.v2 as uc
 
 bot = telebot.TeleBot('1844013883:AAEGQdYOdnVYqDk7ugpx9clrWZRJWI9CLkY')
+chatid = 277180656
 
 class SiteItem:
     def __init__(self, id, name, price, image = '',discount=0 ):
@@ -100,6 +102,29 @@ def getItemsYM(url):
     driver.quit()
     return items
 
+def getLowestPriceSkyScanner(url):
+    driver = uc.Chrome()
+    options = uc.ChromeOptions()
+    ua = UserAgent()
+    userAgent = ua.random
+    options.add_argument(f'user-agent={userAgent}')
+    driver.get(url)
+    time.sleep(15)
+    places = driver.find_element_by_xpath("//*[contains(@class,'SearchDetails_places')]")
+    search = driver.find_elements_by_xpath("//*[contains(@class,'Price_mainPriceContainer')]")
+    places = places.text.replace('\n','')
+    print(places)
+    items = []
+    for item in search:
+        ts = time.time()
+        itemId = places# datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        itemName = places
+        itemPrice = ''.join(filter(str.isdigit, item.text))
+        itemDiscount = 0
+        items.append(SiteItem(itemId, itemName, itemPrice, discount=itemDiscount))
+    driver.quit()
+    return items
+
 def write_csv(data, filename,goodPrice):
     newlines = 0
     if not os.path.isfile(filename):
@@ -128,9 +153,9 @@ def write_csv(data, filename,goodPrice):
                         if (item.price<fileItem[2]) and round((int(fileItem[2])-int(item.price))/int(fileItem[2])*100)>9:
                             pricedown = ('Цена вниз на ' + item.id + ' ' + item.name+', старая '+ fileItem[2]+ ', новая '+ item.price+ ', падение на '+ str(int(fileItem[2])-int(item.price))+ ' '+str(round((int(fileItem[2])-int(item.price))/int(fileItem[2])*100))+'%')
                             print(pricedown)
-                            bot.send_message('277180656', pricedown)
+                            bot.send_message(chatid, pricedown)
                             if (item.image != ''):
-                                bot.send_photo('277180656', item.image)
+                                bot.send_photo(chatid, item.image)
                         fileItem[2] = item.price
                         fileItem[3] = date.today()
                         fileItem[4] = datetime.now().strftime("%H:%M:%S")
@@ -144,7 +169,7 @@ def write_csv(data, filename,goodPrice):
                 newlines+=1
             if (int(item.price)<goodPrice or item.discount > 20):
                 pricenew=('!!!!!!!!' + str(item.id) + ' ' + item.name+ ' цена ' + str(item.price))
-                bot.send_message('277180656', pricenew)
+                bot.send_message(chatid, pricenew)
 
     with open(filename, 'w', encoding='utf8', newline='') as file:
         # file.truncate(0)
@@ -165,6 +190,8 @@ def scrap(site, link, filename,maxPages=5,goodPrice=0):
             items = getItemsWB(link + str(page))
         if (site=='dns'):
             items = getItemsDNS(link + str(page))
+        if (site=='skyscanner'):
+            items = getLowestPriceSkyScanner(link)
         if items:
             all_items.extend(items)
             page += 1
@@ -174,10 +201,12 @@ def scrap(site, link, filename,maxPages=5,goodPrice=0):
             break
 
     print(datetime.now().strftime("%H:%M:%S"), ' Total records: ' + str(len(all_items)))
+    print (all_items)
     write_csv(all_items, filename,goodPrice)
 
 
 if __name__ == '__main__':
+    scrap('skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=1','skyscanner.csv',1,4000)
     pass
     # scrap('ym', 'https://market.yandex.ru/catalog--noutbuki-v-anape/54544/list?cpa=0&hid=91013&how=aprice&glfilter=5085102%3A16880592&onstock=1&local-offers-first=0&page=', 'ym-laptops.csv',1,50000)
     # scrap('ym','https://market.yandex.ru/catalog--materinskie-platy-v-anape/55323/list?cpa=0&hid=91020&how=discount_p&glfilter=4923171%3A17781187&onstock=1&local-offers-first=0&page=','ym-mb1200.csv',1)
