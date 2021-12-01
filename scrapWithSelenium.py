@@ -36,10 +36,10 @@ def get_linenumber():
     return cf.f_back.f_lineno
 
 def getDriver():
-    options = uc.ChromeOptions()
-    ua = UserAgent()
-    userAgent = ua.random
-    options.add_argument(f'user-agent={userAgent}')     #not used ATM
+    # options = uc.ChromeOptions()
+    # ua = UserAgent()
+    # userAgent = ua.random
+    # options.add_argument(f'user-agent={userAgent}')     #not used ATM
     driver = uc.Chrome()
     return driver
 

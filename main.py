@@ -6,6 +6,7 @@ from scrapWithSelenium import scrap
 print('running...')
 print(datetime.now())
 
+scrap('skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=1','skyscanner.csv',1,4000)
 
 schedule.every(1).hours.do(scrap,'wb','https://www.wildberries.ru/catalog/elektronika/noutbuki-i-kompyutery/komplektuyushchie-dlya-pk?sort=priceup&priceU=110000%3B23998000&page=','wb-pcparts.csv',20)
 # schedule.every(1).hours.do(scrap,'dns','https://www.dns-shop.ru/catalog/17a892f816404e77/noutbuki/?f[p3q]=b3ci&p=','dns-laptops.csv',1,55000)
