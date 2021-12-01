@@ -4,14 +4,17 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from datetime import date
 from datetime import datetime
+from dotenv import load_dotenv
 import os, sys, time,re
 import json, csv
 import telebot
 from inspect import currentframe
 from fake_useragent import UserAgent
-import undetected_chromedriver.v2 as uc
+import undetected_chromedriver as uc
 
-bot = telebot.TeleBot('1844013883:AAEGQdYOdnVYqDk7ugpx9clrWZRJWI9CLkY')
+load_dotenv()
+bot = telebot.TeleBot(os.getenv('TELEBOT_TOKEN'))
+# bot = telebot.TeleBot('1844013883:AAEGQdYOdnVYqDk7ugpx9clrWZRJWI9CLkY')
 chatid = 277180656
 
 class SiteItem:
@@ -32,9 +35,18 @@ def get_linenumber():
     cf = currentframe()
     return cf.f_back.f_lineno
 
+def getDriver():
+    options = uc.ChromeOptions()
+    ua = UserAgent()
+    userAgent = ua.random
+    options.add_argument(f'user-agent={userAgent}')     #not used ATM
+    driver = uc.Chrome()
+    return driver
+
 def getItemsDNS(url):
     PATH = 'C:\Python\chromedriver.exe'
-    driver = webdriver.Chrome(PATH)
+    # driver = webdriver.Chrome(PATH)
+    driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
     search = driver.find_elements_by_xpath("//div[@data-id='product']")
@@ -56,14 +68,15 @@ def getItemsDNS(url):
 
 def getItemsWB(url):
     PATH = 'C:\Python\chromedriver.exe'
-    driver = webdriver.Chrome(PATH)
+    # driver = webdriver.Chrome(PATH)
+    driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
-    search = driver.find_elements_by_xpath("//div[@class='dtList-inner']")
+    search = driver.find_elements_by_xpath("//div[@class='product-card j-card-item']")
     items = []
     for item in search:
         try:
-            itemId = item.find_element_by_tag_name("div").get_attribute('id')[1:]
+            itemId = item.get_attribute('id')[1:]
             itemName = item.find_element_by_class_name('goods-name').text + ' ' + item.find_element_by_class_name('brand-name').text
             itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('lower-price').text))
             itemImage =  item.find_element_by_tag_name("img").get_attribute('src')
@@ -78,7 +91,8 @@ def getItemsWB(url):
 
 def getItemsYM(url):
     PATH = 'C:\Python\chromedriver.exe'
-    driver = webdriver.Chrome(PATH)
+    # driver = webdriver.Chrome(PATH)
+    driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
     search = driver.find_elements_by_xpath("//article[@data-autotest-id='product-snippet']")
@@ -111,17 +125,15 @@ def getLowestPriceSkyScanner(url):
     driver.get(url)
     time.sleep(15)
     places = driver.find_element_by_xpath("//*[contains(@class,'SearchDetails_places')]")
-    search = driver.find_elements_by_xpath("//*[contains(@class,'Price_mainPriceContainer')]")
     places = places.text.replace('\n','')
-    print(places)
+    search = driver.find_elements_by_xpath("//*[contains(@class,'Price_mainPriceContainer')]")
     items = []
-    for item in search:
-        ts = time.time()
-        itemId = places# datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        itemName = places
-        itemPrice = ''.join(filter(str.isdigit, item.text))
-        itemDiscount = 0
-        items.append(SiteItem(itemId, itemName, itemPrice, discount=itemDiscount))
+    # for item in search:
+    itemId = places# datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+    itemName = places
+    itemPrice = ''.join(filter(str.isdigit, search[1].text))
+    itemDiscount = 0
+    items.append(SiteItem(itemId, itemName, itemPrice, discount=itemDiscount))
     driver.quit()
     return items
 
@@ -136,8 +148,8 @@ def write_csv(data, filename,goodPrice):
             writer = csv.writer(file)
             if os.stat(filename).st_size == 0:
                 writer.writerow(fields)
-                # for item in data:
-                #     writer.writerow([item.id, item.name, item.price, date.today(), datetime.now().strftime("%H:%M:%S")])
+                for item in data:
+                    writer.writerow([item.id, item.name, item.price, date.today(), datetime.now().strftime("%H:%M:%S")])
 
     with open(filename, 'r', encoding='utf8', newline='') as file:
         reader = csv.reader(file, delimiter=',')
@@ -145,7 +157,7 @@ def write_csv(data, filename,goodPrice):
         for item in data:
             exists = False
             for fileItem in fileList:
-                if item.id == fileItem[0]:       # сюда вписать замену цены в существующих строках иначе будут ошибки
+                if item.id == fileItem[0]:
                     try:
                         exists = True
                         if item.price == fileItem[2]:
@@ -206,10 +218,10 @@ def scrap(site, link, filename,maxPages=5,goodPrice=0):
 
 
 if __name__ == '__main__':
-    scrap('skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=1','skyscanner.csv',1,4000)
-    pass
+    # scrap('skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=1','skyscanner.csv',1,4000)
     # scrap('ym', 'https://market.yandex.ru/catalog--noutbuki-v-anape/54544/list?cpa=0&hid=91013&how=aprice&glfilter=5085102%3A16880592&onstock=1&local-offers-first=0&page=', 'ym-laptops.csv',1,50000)
     # scrap('ym','https://market.yandex.ru/catalog--materinskie-platy-v-anape/55323/list?cpa=0&hid=91020&how=discount_p&glfilter=4923171%3A17781187&onstock=1&local-offers-first=0&page=','ym-mb1200.csv',1)
-    # scrap('dns','https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?f[8lf]=evwg-2vyw1-rj64n&p=', 'dns-mb.csv',5)
+    # scrap('dns','https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?f[8lf]=evwg-2vyw1-rj64n&p=', 'dns-mb.csv',2)
     # scrap('dns','https://www.dns-shop.ru/catalog/17a8ae4916404e77/televizory/?fr[p2]=50-100&p=','dns-tv.csv',1)
     # scrap('wb','https://www.wildberries.ru/catalog/elektronika/noutbuki-i-kompyutery/komplektuyushchie-dlya-pk?sort=popular&page=','wb-pcparts.csv',1)
+    pass
