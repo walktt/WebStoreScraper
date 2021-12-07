@@ -1,6 +1,8 @@
 # https://stackoverflow.com/questions/16180428/can-selenium-webdriver-open-browser-windows-silently-in-the-background
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
 # from selenium.webdriver.chrome.options import Options
 from datetime import date
 from datetime import datetime
@@ -41,7 +43,7 @@ def getDriver():
     options.add_argument('--disable-blink-features=AutomationControlled')
 
     # driver = webdriver.Remote("http://172.17.0.2:4444/wd/hub", DesiredCapabilities.CHROME, options=options)
-    driver = webdriver.Remote("http://172.17.0.2:4444/wd/hub")
+    # driver = webdriver.Remote("http://172.17.0.2:4444/wd/hub")
 
     # ua = UserAgent()
     # userAgent = ua.random
@@ -49,20 +51,20 @@ def getDriver():
 
     # driver = uc.Chrome()
 
-    # path = 'C:\Python\chromedriver.exe'
-    # driver = webdriver.Chrome(options=options, executable_path=path)
+    path = Service('C:\Python\chromedriver.exe')
+    driver = webdriver.Chrome(service=path,options=options)
     return driver
 
 def getItemsDNS(url):
     driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
-    search = driver.find_elements_by_xpath("//div[@data-id='product']")
+    search = driver.find_elements(By.XPATH,"//div[@data-id='product']")
     items = []
     for item in search:
         itemId = item.get_attribute('data-code')
-        itemName = item.find_element_by_class_name('catalog-product__name').text
-        itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('product-buy__price').text))
+        itemName = item.find_element(By.CLASS_NAME,'catalog-product__name').text
+        itemPrice = ''.join(filter(str.isdigit, item.find_element(By.CLASS_NAME,'product-buy__price').text))
         itemDiscount=0
         if (len(itemPrice)>=6):
             itemPriceLen = int(len(itemPrice) / 2)
@@ -78,14 +80,14 @@ def getItemsWB(url):
     driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
-    search = driver.find_elements_by_xpath("//div[@class='product-card j-card-item']")
+    search = driver.find_elements(By.XPATH,"//div[@class='product-card j-card-item']")
     items = []
     for item in search:
         try:
             itemId = item.get_attribute('id')[1:]
-            itemName = item.find_element_by_class_name('goods-name').text + ' ' + item.find_element_by_class_name('brand-name').text
-            itemPrice = ''.join(filter(str.isdigit, item.find_element_by_class_name('lower-price').text))
-            itemImage =  item.find_element_by_tag_name("img").get_attribute('src')
+            itemName = item.find_element(By.CLASS_NAME,'goods-name').text + ' ' + item.find_element(By.CLASS_NAME,'brand-name').text
+            itemPrice = ''.join(filter(str.isdigit, item.find_element(By.CLASS_NAME,'lower-price').text))
+            itemImage =  item.find_element(By.TAG_NAME,"img").get_attribute('src')
         except:
             print ('error line ', get_linenumber(),' ', sys.exc_info()[0])
             print(itemId, ' ', itemName, ' ', itemPrice)
@@ -99,12 +101,12 @@ def getItemsYM(url):
     driver = getDriver()
     driver.get(url)
     driver.implicitly_wait(15)
-    search = driver.find_elements_by_xpath("//article[@data-autotest-id='product-snippet']")
+    search = driver.find_elements(By.XPATH,"//article[@data-autotest-id='product-snippet']")
     items = []
     for item in search:
         try:
             itemId = json.loads(item.get_attribute('data-zone-data'))["id"]
-            itemName = item.find_element_by_tag_name('h3').text
+            itemName = item.find_element(By.TAG_NAME,'h3').text
             itemPrice = json.loads(item.get_attribute('data-zone-data'))["price"]
             itemDiscount=0
             if ("oldPrice" in json.loads(item.get_attribute('data-zone-data'))):
@@ -124,9 +126,9 @@ def getLowestPriceSkyScanner(url):
     driver = getDriver()
     driver.get(url)
     time.sleep(15)
-    places = driver.find_element_by_xpath("//*[contains(@class,'SearchDetails_places')]")
+    places = driver.find_element(By.XPATH,"//*[contains(@class,'SearchDetails_places')]")
     places = places.text.replace('\n','')
-    search = driver.find_elements_by_xpath("//*[contains(@class,'Price_mainPriceContainer')]")
+    search = driver.find_elements(By.XPATH,"//*[contains(@class,'Price_mainPriceContainer')]")
     items = []
     # for item in search:
     itemId = places# datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
