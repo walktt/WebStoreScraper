@@ -1,0 +1,6 @@
+schedule
+selenium
+python_dotenv
+telebot
+fake_useragent
+undetected_chromedriver

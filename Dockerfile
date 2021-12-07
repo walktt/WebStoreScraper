@@ -1,8 +1,12 @@
-FROM python:3.9
+FROM python
 
-RUN mkdir -p /usr/src/app/
-WORKDIR /usr/src/app/
+RUN mkdir -p /app
+WORKDIR /app
 
-COPY . /usr/src/app/
+COPY . /app
+
+RUN pip install -r requirements.txt
+
+VOLUME ["/app/data"]
 
 CMD ["python", "main.py"]
