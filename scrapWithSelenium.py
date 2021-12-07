@@ -216,10 +216,10 @@ def scrap(site, link, filename,maxPages=5,goodPrice=0):
                 break
 
         print(datetime.now().strftime("%H:%M:%S"), ' Total records: ' + str(len(all_items)))
-        print (all_items)
+        # print (all_items)
         write_csv(all_items, filename,goodPrice)
     except Exception:
-        print('There was an error')
+        print('\n')
 
 
 if __name__ == '__main__':

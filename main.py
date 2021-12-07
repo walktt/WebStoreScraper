@@ -6,7 +6,7 @@ from scrapWithSelenium import scrap
 print('running...')
 print(datetime.now())
 
-scrap('dns','https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?f[8lf]=evwg-2vyw1-rj64n&p=', 'data/dns-mb.csv',2)
+scrap('dns','https://www.dns-shop.ru/catalog/17a89a0416404e77/materinskie-platy/?f[8lf]=evwg-2vyw1-rj64n&p=', 'data/dns-mb.csv',3)
 # scrap('skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=','skyscanner.csv',1,4000)
 
 schedule.every(1).hours.do(scrap,'wb','https://www.wildberries.ru/catalog/elektronika/noutbuki-i-kompyutery/komplektuyushchie-dlya-pk?sort=priceup&priceU=110000%3B23998000&page=','data/wb-pcparts.csv',20)
@@ -16,7 +16,7 @@ schedule.every(1).hours.do(scrap,'dns','https://www.dns-shop.ru/catalog/17a89a04
 #             'https://market.yandex.ru/catalog--noutbuki/54544/list?hid=91013&how=aprice&glfilter=5085102%3A16880592&glfilter=5085119%3A18002970%2C19081250%2C17754601%2C17944473%2C16625219%2C17691566%2C16337183%2C22475370%2C22475390&onstock=1&local-offers-first=0&page=',
 #         'ym-laptops.csv',1,55000)
 # schedule.every(1).hours.do(scrap,'dns','https://www.dns-shop.ru/search/?q=playstation+5&category=17a8978216404e77&p=','dns-ps5.csv',1)
-# schedule.every(1).hours.do(scrap,'skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=','skyscanner.csv',1,4000)
+schedule.every(1).hours.do(scrap,'skyscanner','https://www.skyscanner.ru/transport/flights/aaq/mosc/220210/220214/?adults=2&adultsv2=2&cabinclass=economy&children=1&childrenv2=6&destinationentityid=27539438&inboundaltsenabled=false&infants=0&originentityid=27536417&outboundaltsenabled=false&preferdirects=false&preferflexible=false&ref=home&rtn=','data/skyscanner.csv',1,4000)
 while True:
     schedule.run_pending()
     time.sleep(1)
