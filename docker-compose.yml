@@ -1,0 +1,33 @@
+services:
+  selenium:
+    image: selenium/standalone-chrome
+    ports:
+      - "4445:4444"
+      - "7901:7900"
+    shm_size: "2g"
+    privileged: true
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.2
+  scraper:
+    build: .
+    depends_on:
+      - selenium
+    volumes:
+      - ./data:/data
+    environment:
+      - INDOCKER=1
+    networks:
+      app_net:
+        ipv4_address: 172.30.0.3
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
+
+

@@ -3,5 +3,5 @@
 /test.py
 /skyscanner.csv
 /dns-laptops.csv
-/env
+/.env
 /chromedriver.exe

@@ -1,12 +1,7 @@
 FROM python
 
-RUN mkdir -p /app
-WORKDIR /app
-
-COPY . /app
+COPY . .
 
 RUN pip install -r requirements.txt
 
-VOLUME ["/app/data"]
-
-CMD ["python", "main.py"]
+CMD ["python", "-u", "main.py"]

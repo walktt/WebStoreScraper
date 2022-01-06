@@ -2,5 +2,6 @@ schedule
 selenium
 python_dotenv
 telebot
+pyTelegramBotAPI
 fake_useragent
 undetected_chromedriver

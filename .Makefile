@@ -3,4 +3,4 @@ runSelenium:
 
 runScraper:
     docker build . -t scraper --rm
-    docker run -d -v scraperVol:/app/data --rm --name scraper scraper
+    docker run -d -v /data:/app/data --rm --name scraper scraper
